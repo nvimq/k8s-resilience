@@ -67,7 +67,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ github.repository }}/${{ matrix.service }}
           tags: |
-            type=sha,prefix=
+            type=sha,format=long
             type=ref,event=branch
       - name: Build and push
         uses: docker/build-push-action@v6
@@ -75,6 +75,7 @@ jobs:
           context: .
           file: ./${{ matrix.service }}/Dockerfile
           push: true
+          load: true
           tags: ${{ steps.meta.outputs.tags }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -84,6 +85,7 @@ jobs:
           image-ref: ${{ env.REGISTRY }}/${{ github.repository }}/${{ matrix.service }}:${{ github.sha }}
           severity: CRITICAL,HIGH
           exit-code: 1
+          docker: false
 
   helm-lint:
     runs-on: ubuntu-latest
