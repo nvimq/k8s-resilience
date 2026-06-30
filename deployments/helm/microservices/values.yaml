@@ -1,0 +1,138 @@
+global:
+  namespace: resilience
+
+frontend:
+  name: frontend-api
+  replicaCount: 3
+  image:
+    repository: frontend-api
+    pullPolicy: IfNotPresent
+    tag: latest
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 8080
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 6
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+  livenessProbe:
+    httpGet:
+      path: /healthz
+      port: 8080
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 3
+    failureThreshold: 3
+  readinessProbe:
+    httpGet:
+      path: /readyz
+      port: 8080
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 2
+  env:
+    HTTP_PORT: "8080"
+    GRPC_BACKEND_ADDR: "backend-worker.resilience.svc.cluster.local:50051"
+    OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.resilience.svc.cluster.local:4318"
+    OTEL_SERVICE_NAME: "frontend-api"
+
+backend:
+  name: backend-worker
+  replicaCount: 3
+  image:
+    repository: backend-worker
+    pullPolicy: IfNotPresent
+    tag: latest
+  service:
+    type: ClusterIP
+    grpcPort: 50051
+    metricsPort: 8081
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 6
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+  livenessProbe:
+    grpc:
+      port: 50051
+      service: worker.TaskService
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 3
+    failureThreshold: 3
+  readinessProbe:
+    grpc:
+      port: 50051
+      service: worker.TaskService
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 2
+  env:
+    GRPC_PORT: "50051"
+    DATABASE_URL: "postgres://app:appsecret@postgres.resilience.svc.cluster.local:5432/tasks?sslmode=disable"
+    REDIS_ADDR: "redis.resilience.svc.cluster.local:6379"
+    REDIS_PASSWORD: "redissecret"
+    OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.resilience.svc.cluster.local:4318"
+    OTEL_SERVICE_NAME: "backend-worker"
+
+postgres:
+  storageSize: 1Gi
+  storageClass: standard
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 200m
+      memory: 256Mi
+
+redis:
+  storageSize: 1Gi
+  storageClass: standard
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 65532
+  fsGroup: 65532
+  seccompProfile:
+    type: RuntimeDefault
+
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 65532
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 2

@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.backend.name }}
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app.kubernetes.io/component: backend
+    {{- include "microservices.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.backend.service.type }}
+  selector:
+    app.kubernetes.io/name: {{ .Values.backend.name }}
+  ports:
+    - name: grpc
+      port: {{ .Values.backend.service.grpcPort }}
+      targetPort: {{ .Values.backend.service.grpcPort }}
+      protocol: TCP

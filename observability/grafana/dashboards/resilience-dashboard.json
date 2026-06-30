@@ -1,0 +1,110 @@
+{
+  "title": "Resilience Dashboard",
+  "uid": "resilience-dashboard",
+  "version": 1,
+  "timezone": "browser",
+  "panels": [
+    {
+      "id": 1,
+      "title": "HTTP RPS & Error Rate (Golden Signals)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "custom": { "showPoints": "never" }
+        }
+      },
+      "targets": [
+        {
+          "expr": "rate(http_requests_total{service=~\"frontend-api\"}[30s])",
+          "legendFormat": "Total RPS"
+        },
+        {
+          "expr": "rate(http_requests_total{service=~\"frontend-api\",status_code=~\"5..\"}[30s])",
+          "legendFormat": "5xx Error Rate"
+        },
+        {
+          "expr": "rate(http_requests_total{service=~\"frontend-api\",status_code=~\"4..\"}[30s])",
+          "legendFormat": "4xx Rate"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "gRPC Latency Quantiles (p50, p95, p99)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "custom": { "showPoints": "never" }
+        }
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, sum(rate(grpc_server_handling_seconds_bucket{grpc_service=\"worker.TaskService\"}[30s])) by (le))",
+          "legendFormat": "p50"
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(grpc_server_handling_seconds_bucket{grpc_service=\"worker.TaskService\"}[30s])) by (le))",
+          "legendFormat": "p95"
+        },
+        {
+          "expr": "histogram_quantile(0.99, sum(rate(grpc_server_handling_seconds_bucket{grpc_service=\"worker.TaskService\"}[30s])) by (le))",
+          "legendFormat": "p99"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Circuit Breaker State (0=Closed, 1=Open)",
+      "type": "stat",
+      "gridPos": { "h": 8, "w": 6, "x": 0, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 1 }
+            ]
+          }
+        }
+      },
+      "targets": [
+        {
+          "expr": "resilience_circuit_breaker_state{name=\"backend-worker-grpc\"}",
+          "legendFormat": "Circuit Breaker"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Active Pods Counter",
+      "type": "stat",
+      "gridPos": { "h": 8, "w": 6, "x": 6, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none"
+        }
+      },
+      "targets": [
+        {
+          "expr": "count(kube_pod_info{pod=~\"frontend-api.*\",namespace=\"resilience\"})",
+          "legendFormat": "Frontend"
+        },
+        {
+          "expr": "count(kube_pod_info{pod=~\"backend-worker.*\",namespace=\"resilience\"})",
+          "legendFormat": "Backend"
+        }
+      ]
+    }
+  ],
+  "refresh": "10s"
+}

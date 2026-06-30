@@ -1,0 +1,24 @@
+apiVersion: v2
+name: microservices
+description: A resilient microservices stack with circuit breaker and DB fallback
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+
+keywords:
+  - resilience
+  - circuit-breaker
+  - chaos-engineering
+  - golang
+  - grpc
+
+home: https://github.com/resume/k8s-resilience
+sources:
+  - https://github.com/resume/k8s-resilience
+
+maintainers:
+  - name: DevOps
+    email: devops@example.com
+
+annotations:
+  category: Application

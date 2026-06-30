@@ -1,0 +1,38 @@
+# Binaries
+bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Go
+*.out
+*.test
+*.prof
+go.work.sum
+vendor/
+
+# Proto
+api/proto/*/gen/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+.env.local
+
+# Helm
+deployments/helm/**/charts/*.tgz
+
+# Build
+dist/
+tmp/

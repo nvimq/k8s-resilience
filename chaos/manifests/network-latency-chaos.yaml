@@ -1,0 +1,25 @@
+apiVersion: chaos-mesh.org/v1alpha1
+kind: NetworkChaos
+metadata:
+  name: grpc-network-latency
+  namespace: resilience
+spec:
+  action: delay
+  mode: all
+  selector:
+    namespaces:
+      - resilience
+    labelSelectors:
+      app.kubernetes.io/component: frontend
+  direction: to
+  target:
+    selector:
+      namespaces:
+        - resilience
+      labelSelectors:
+        app.kubernetes.io/component: backend
+    mode: all
+  delay:
+    latency: "1200ms"
+    jitter: "50ms"
+  duration: "1m"

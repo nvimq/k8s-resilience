@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-config
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app.kubernetes.io/component: frontend
+    {{- include "microservices.labels" . | nindent 4 }}
+data:
+  HTTP_PORT: "{{ .Values.frontend.env.HTTP_PORT }}"
+  GRPC_BACKEND_ADDR: "{{ .Values.frontend.env.GRPC_BACKEND_ADDR }}"
+  OTEL_EXPORTER_OTLP_ENDPOINT: "{{ .Values.frontend.env.OTEL_EXPORTER_OTLP_ENDPOINT }}"
+  OTEL_SERVICE_NAME: "{{ .Values.frontend.env.OTEL_SERVICE_NAME }}"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-config
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app.kubernetes.io/component: backend
+    {{- include "microservices.labels" . | nindent 4 }}
+data:
+  GRPC_PORT: "{{ .Values.backend.env.GRPC_PORT }}"
+  REDIS_ADDR: "{{ .Values.backend.env.REDIS_ADDR }}"
+  OTEL_EXPORTER_OTLP_ENDPOINT: "{{ .Values.backend.env.OTEL_EXPORTER_OTLP_ENDPOINT }}"
+  OTEL_SERVICE_NAME: "{{ .Values.backend.env.OTEL_SERVICE_NAME }}"

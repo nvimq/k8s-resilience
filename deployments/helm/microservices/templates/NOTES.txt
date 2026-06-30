@@ -1,0 +1,25 @@
+🚀 Microservices deployed successfully!
+
+Frontend API:  http://frontend-api.{{ .Values.global.namespace }}.svc.cluster.local:80
+Backend gRPC:  backend-worker.{{ .Values.global.namespace }}.svc.cluster.local:50051
+PostgreSQL:    postgres.{{ .Values.global.namespace }}.svc.cluster.local:5432
+Redis:         redis.{{ .Values.global.namespace }}.svc.cluster.local:6379
+
+Health checks:
+  Frontend Liveness:  http://frontend-api.{{ .Values.global.namespace }}.svc.cluster.local:80/healthz
+  Frontend Readiness: http://frontend-api.{{ .Values.global.namespace }}.svc.cluster.local:80/readyz
+
+Resilience features:
+  ✅ Circuit Breaker (gobreaker) — 40% failure threshold, 5s cooldown
+  ✅ gRPC Retries — exponential backoff, max 3 retries
+  ✅ PostgreSQL → Redis fallback — 1s query timeout
+  ✅ Graceful Shutdown — SIGINT/SIGTERM, 15s timeout
+  ✅ HPA — CPU > 70% OR Memory > 80%, min=2 max=6
+  ✅ PDB — minAvailable=2
+  ✅ NetworkPolicy — default-deny, zero-trust
+  ✅ PodAntiAffinity — spread across nodes
+
+To test resilience:
+  1. Port-forward: kubectl port-forward -n {{ .Values.global.namespace }} svc/frontend-api 8080:80
+  2. GET task:     curl http://localhost:8080/api/v1/tasks/task-1
+  3. Create task:  curl -X POST http://localhost:8080/api/v1/tasks -d '{"title":"test"}'
