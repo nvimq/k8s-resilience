@@ -67,7 +67,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ github.repository }}/${{ matrix.service }}
           tags: |
-            type=sha,format=long
+            type=sha,prefix=,format=long
             type=ref,event=branch
       - name: Build and push
         uses: docker/build-push-action@v6
