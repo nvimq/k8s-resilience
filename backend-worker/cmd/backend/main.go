@@ -57,7 +57,7 @@ func main() {
 		slog.Error("failed to connect to redis", "error", err)
 		os.Exit(1)
 	}
-	defer redisCache.Close()
+	defer func() { _ = redisCache.Close() }()
 
 	store := db.NewStore(pgStore, redisCache)
 

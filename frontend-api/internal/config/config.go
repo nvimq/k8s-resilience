@@ -21,7 +21,7 @@ type HTTPConfig struct {
 }
 
 type GRPCClientConfig struct {
-	BackendAddr string `envconfig:"GRPC_BACKEND_ADDR" default:"localhost:50051"`
+	BackendAddr string        `envconfig:"GRPC_BACKEND_ADDR" default:"localhost:50051"`
 	Timeout     time.Duration `envconfig:"GRPC_TIMEOUT" default:"5s"`
 }
 

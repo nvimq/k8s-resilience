@@ -45,7 +45,7 @@ func main() {
 		slog.Error("failed to create gRPC client", "error", err)
 		os.Exit(1)
 	}
-	defer grpcClient.Close()
+	defer func() { _ = grpcClient.Close() }()
 
 	taskHandler := handlers.NewTaskHandler(grpcClient)
 	healthHandler := handlers.NewHealthHandler(grpcClient)

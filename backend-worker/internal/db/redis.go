@@ -4,10 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/redis/go-redis/v9"
-	"log/slog"
 
 	"github.com/resume/k8s-resilience/backend-worker/internal/config"
 	"github.com/resume/k8s-resilience/backend-worker/internal/model"

@@ -3,10 +3,10 @@ package db
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	"log/slog"
 
 	"github.com/resume/k8s-resilience/backend-worker/internal/config"
 	"github.com/resume/k8s-resilience/backend-worker/internal/model"
