@@ -1,8 +1,4 @@
 version: "2"
-run:
-  timeout: 5m
-  modules-download-mode: readonly
-
 linters:
   enable:
     - errcheck
@@ -11,35 +7,16 @@ linters:
     - ineffassign
     - staticcheck
     - unused
+  exclusions:
+    paths:
+      - api/proto/
+      - ".*_test\\.go$"
+formatters:
+  enable:
     - gofmt
     - goimports
-    - misspell
-    - prealloc
-    - unconvert
-    - revive
-  disable:
-    - godox
-    - wsl
-
-linters-settings:
-  gofmt:
-    simplify: true
-  goimports:
-    local-prefixes: github.com/resume/k8s-resilience
-  revive:
-    rules:
-      - name: exported
-        severity: warning
-      - name: context-as-argument
-        severity: warning
-      - name: error-return
-        severity: warning
-      - name: error-naming
-        severity: warning
-
-issues:
-  exclude-rules:
-    - path: _test\.go
-      linters:
-        - errcheck
-        - gosimple
+  settings:
+    gofmt:
+      simplify: true
+    goimports:
+      local-prefixes: [github.com/resume/k8s-resilience]
